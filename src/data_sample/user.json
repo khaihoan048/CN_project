@@ -1,0 +1,16 @@
+{
+    "Message": {
+        "message": "Hello", 
+        "sentTime": 15, 
+        "userSender": "Zoe"}
+}
+
+
+{
+    "User": {
+        "userName":,
+        "avatarSrc": ,
+        "listUserNameOfFriend":,
+    }   
+}
+
