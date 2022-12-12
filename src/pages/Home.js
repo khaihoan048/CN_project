@@ -8,9 +8,26 @@ const Home = ({socket}) => {
     const handleSubmit = (e) => {
         e.preventDefault()
         localStorage.setItem("userName", userName)
-        socket.emit("newUser", {userName, socketID: socket.id})
-        navigate("/chat")
+        onUsernameSelection(userName);
+        // socket.emit("newUser", {userName, socketID: socket.id})
+        navigate("/chat");
+
     }
+    function onUsernameSelection(username) {
+      // this.usernameAlreadySelected = true;
+      socket.auth = { username };
+      socket.connect();
+    }
+
+    socket.on("connect_error", (err) => {
+      // if (err.message === "invalid username") {
+      //   // this.usernameAlreadySelected = false;
+      // }
+      console.log('Invalid username');
+    });
+
+    socket.off("connect_error");
+
   return (
     <form className='home__container' onSubmit={handleSubmit}>
         <h2 className='home__header'>Sign in to Open Chat</h2>
