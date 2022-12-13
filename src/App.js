@@ -5,14 +5,20 @@ import Login from './pages/Login.js';
 import Register from './pages/Register.js';
 import * as React from 'react';
 
+
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {pageType: 'login', userName : ''};
+    let x = require('./global.js');
+    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXX");
+
   }
   setChatPage() {
     console.log(1);
     this.setState({pageType: 'chat'});
+
   }
 
   setUserInfo(infoObject) {
