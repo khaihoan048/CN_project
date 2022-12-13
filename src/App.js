@@ -11,9 +11,6 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {pageType: 'login', userName : ''};
-    let x = require('./global.js');
-    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXX");
-
   }
   setChatPage() {
     console.log(1);

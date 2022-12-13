@@ -84,7 +84,7 @@ export default function Chat(user) {
 
     return (
         <div style={{
-            height: "600px",
+            height: "700px",
             position: "relative"
         }}>
         <MainContainer responsive>

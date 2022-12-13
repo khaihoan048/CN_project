@@ -163,16 +163,18 @@ export class ChatApp extends React.Component {
   // Create serviceFactory
   constructor(props) {
     super(props);
+    
+    console.log(window.g_p + 'sssssssssssssssssss');
 
     this.userName = this.props.userName;
-
+    window.myPeer = this.myPeer = new MyPeer(this.userName);
 
     console.log('hello' +  this.props.userName);
     this.serviceFactory = this.serviceFactory.bind(this);
   }
 
   serviceFactory = (storage: IStorage, updateState: UpdateState) => {
-    return new P2PChatService(storage, updateState, new MyPeer(this.userName, users));
+    return new P2PChatService(storage, updateState, window.myPeer);
   };
   render() {
     return (

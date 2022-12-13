@@ -31,6 +31,7 @@ export default class Login extends React.Component {
         let username = data.get('username');
         let password = data.get('password');
         this.userName = username;
+        window.g_userName = username;
         this.setParentApp({userName: this.userName, pageType : 'chat'});
     };
 

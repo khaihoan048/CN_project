@@ -15,7 +15,7 @@ import { ChatEvent, MessageEvent, UserTypingEvent } from "@chatscope/use-chat";
 import { ChatMessage } from "@chatscope/use-chat";
 
 import MyPeer from '../handlers/PeerController';
-
+import Peer from 'peerjs';
 type EventHandlers = {
   onMessage: ChatEventHandler<
       ChatEventType.Message,
@@ -57,12 +57,10 @@ export class P2PChatService implements IChatService {
     onUserTyping: () => {},
   };
 
-  private myPeer: any;
 
-  constructor(storage: IStorage, update: UpdateState, myPeer) {
+  constructor(storage: IStorage, update: UpdateState) {
     this.storage = storage;
     this.updateState = update;
-    this.myPeer = myPeer;
     // For communication, we use CustomEvent dispatched to the window object.
     // It allows you to simulate sending and receiving data from the server.
     // In a real application, instead of adding a listener to the window,
@@ -131,15 +129,29 @@ export class P2PChatService implements IChatService {
         sender: this,
       },
     });
-    console.log(conversationId);
 
-    let myPeer = this.myPeer;
-    let dc = myPeer.dataConnectionDict[conversationId];
-    if (!(dc && dc.peerConnection && (dc.peerConnection.iceConnectionState == 'connected'))) {
-      myPeer.dataConnectionDict[conversationId] = myPeer.connect(conversationId);
-      dc = myPeer.dataConnectionDict[conversationId];
-      myPeer.addHandlerForDc(dc);
-    }      
+
+    // @ts-ignore
+    // let myPeer = window.g_myPeer;
+    // // @ts-ignore
+    // if (!(window.g_myPeer) || window.g_myPeer.destroyed) {
+    //   // @ts-ignore
+    //   myPeer = window.g_myPeer = new MyPeer(window.g_userName);
+    // }
+    // console.log('is destroyed' + myPeer.destroyed);
+    //
+    // let dc = myPeer.dataConnectionDict[conversationId];
+
+    let tempPeer = new Peer({config: window.g_CONFIG});
+    console.log(window.g_CONFIG);
+
+    setTimeout(() => {
+      console.log('llllllll ')
+    }, 5000);
+    let dc = tempPeer.connect(conversationId);
+    setTimeout(() => {
+      console.log('llllllll ')
+    }, 5000);
     dc.send(messageEvent);
     // window.dispatchEvent(messageEvent);
     return message;
@@ -166,14 +178,21 @@ export class P2PChatService implements IChatService {
       },
     });
 
-    let myPeer = this.myPeer;
-    let dc = myPeer.dataConnectionDict[conversationId];
-    if (!(dc.peerConnection && dc.peerConnection.iceConnectionState == 'connected')) {
-      myPeer.dataConnectionDict[conversationId] = myPeer.connect(conversationId);
-      dc = myPeer.dataConnectionDict[conversationId];
-      myPeer.addHandlerForDc(dc);
-    }      
-    dc.send(typingEvent);
+    // // @ts-ignore
+    // let myPeer = window.g_myPeer;
+    // // @ts-ignore
+    // if (!(window.g_myPeer) || window.g_myPeer.destroyed) {
+    //   // @ts-ignore
+    //   myPeer = window.g_myPeer = new MyPeer(window.g_userName);
+    // }
+    // console.log('is destroyed' + myPeer.destroyed);
+    // let dc = myPeer.dataConnectionDict[conversationId];
+    // if (!(dc && dc.peerConnection && dc.peerConnection.iceConnectionState == 'connected')) {
+    //   myPeer.dataConnectionDict[conversationId] = myPeer.connect(conversationId);
+    //   dc = myPeer.dataConnectionDict[conversationId];
+    //   myPeer.addHandlerForDc(dc);
+    // }
+    // dc.send(typingEvent);
     // window.dispatchEvent(typingEvent);
     }
  on<T extends ChatEventType, H extends ChatEvent<T>>(
