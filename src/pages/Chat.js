@@ -2,6 +2,8 @@ import {useMemo, useCallback, useEffect} from "react";
 import { MainContainer, Sidebar, ConversationList, Conversation, Avatar, ChatContainer, ConversationHeader, MessageGroup, Message,MessageList, MessageInput, TypingIndicator } from "@chatscope/chat-ui-kit-react";
 import {useChat, ChatMessage, MessageContentType, MessageDirection, MessageStatus} from "@chatscope/use-chat";
 import {MessageContent, TextContent, User} from "@chatscope/use-chat";
+
+import MyPeer from '../handlers/PeerController';
 export default function Chat(user) {
     const {
         currentMessages,
@@ -112,7 +114,22 @@ export default function Chat(user) {
                                              info={c.draft ? `Draft: ${c.draft.replace(/<br>/g, "\n").replace(/&nbsp;/g, " ")}` : ``}
                                              active={activeConversation?.id === c.id}
                                              unreadCnt={c.unreadCounter}
-                                             onClick={() => setActiveConversation(c.id)}>
+                                             onClick={() => {
+                                                let myPeer = window.g_peer;
+                                                let conversationId = c.id;
+
+                                                if (!(window.g_peer) || window.g_peer.destroyed) {
+                                                    if (window.g_peer) window.g_peer.destroy();
+                                                    myPeer = window.g_peer = new MyPeer(window.g_userName);
+                                                  }
+                                                let dc = myPeer.dataConnectionDict[c.id];
+                                                if (!(dc && dc.peerConnection && dc.peerConnection.iceConnectionState == 'connected')) {
+                                                    window.g_peer.dataConnectionDict[conversationId] = window.g_peer.connect(conversationId);
+                                                    dc = window.g_peer.dataConnectionDict[conversationId];
+                                                    window.g_peer.addHandlerForDc(dc);
+                                                }
+                                                setActiveConversation(c.id);
+                                                }}>
                             {avatar}
                         </Conversation>
                     })}

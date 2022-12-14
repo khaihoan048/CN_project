@@ -7,7 +7,7 @@ import {
   MessageIdGenerator,
   Participant,
   Presence,
-} from "../";
+} from "..";
 import { User } from "../User";
 
 export interface IStorage<ConversationData = any, UserData = any> {

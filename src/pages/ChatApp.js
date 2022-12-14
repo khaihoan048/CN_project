@@ -26,17 +26,12 @@ import {AutoDraft} from "@chatscope/use-chat/dist/enums/AutoDraft";
 import MyPeer from "../handlers/PeerController";
 import React from 'react'
 
-
-
-
 let myPeer;
 const messageIdGenerator = (message: ChatMessage<MessageContentType>) => nanoid();
 const groupIdGenerator = () => nanoid();
 
 const akaneStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
-const eliotStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
 const emilyStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
-const joeStorage = new BasicStorage({groupIdGenerator, messageIdGenerator});
 
 
 const akane = new User({
@@ -61,45 +56,18 @@ const emily = new User({
   bio: ""
 });
 
-const eliot = new User({
-  id: eliotModel.name,
-  presence: new Presence({status: UserStatus.Available, description: ""}),
-  firstName: "",
-  lastName: "",
-  username: eliotModel.name,
-  email: "",
-  avatar: eliotModel.avatar,
-  bio: ""
-});
-
-const joe = new User({
-  id: joeModel.name,
-  presence: new Presence({status: UserStatus.Available, description: ""}),
-  firstName: "",
-  lastName: "",
-  username: joeModel.name,
-  email: "",
-  avatar: joeModel.avatar,
-  bio: ""
-});
 
 let chats = [
   {name: "akane", storage: akaneStorage, object: akane},
-  {name: "eliot", storage: eliotStorage, object: eliot},
   {name: "emily", storage: emilyStorage, object: emily},
-  {name: "joe", storage: joeStorage, object: joe}
 ];
 let objectUsers = {
   akane: akane,
-  eliot: eliot,
   emily: emily,
-  joe: joe
 }
 let storage = {
   akane: akaneStorage,
-  eliot: eliotStorage,
   emily: emilyStorage,
-  joe: joeStorage
 }
 function createConversation(id: ConversationId, name: string): Conversation {
   return new Conversation({
@@ -118,7 +86,6 @@ function createConversation(id: ConversationId, name: string): Conversation {
 
 // Add users and conversations to the states
 chats.forEach(c => {
-
   users.forEach(u => {
     if (u.name !== c.name) {
       c.storage.addUser(new User({
@@ -131,30 +98,20 @@ chats.forEach(c => {
         avatar: u.avatar,
         bio: ""
       }));
-
       const conversationId = u.name;
-      
       const myConversation = c.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === u.name) !== "undefined");
       if (!myConversation) {
-
         c.storage.addConversation(createConversation(u.name, u.name));
-
         const chat = chats.find(chat => chat.name === u.name);
-
         if (chat) {
-
           const hisConversation = chat.storage.getState().conversations.find(cv => typeof cv.participants.find(p => p.id === c.name) !== "undefined");
           if (!hisConversation) {
             chat.storage.addConversation(createConversation(conversationId, c.name));
           }
-
         }
-
       }
-
     }
   });
-
 });
 
 
@@ -163,18 +120,16 @@ export class ChatApp extends React.Component {
   // Create serviceFactory
   constructor(props) {
     super(props);
-    
-    console.log(window.g_p + 'sssssssssssssssssss');
-
     this.userName = this.props.userName;
-    window.myPeer = this.myPeer = new MyPeer(this.userName);
-
-    console.log('hello' +  this.props.userName);
+    if (!window.g_peer || window.g_peer.destroyed) {
+      if (window.g_peer) window.g_peer.destroy();
+      window.g_peer = new MyPeer(window.g_userName);
+    }
     this.serviceFactory = this.serviceFactory.bind(this);
   }
 
-  serviceFactory = (storage: IStorage, updateState: UpdateState) => {
-    return new P2PChatService(storage, updateState, window.myPeer);
+  serviceFactory = (storage, updateState) => {
+    return new P2PChatService(storage, updateState, window.g_peer);
   };
   render() {
     return (

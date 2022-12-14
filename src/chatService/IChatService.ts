@@ -121,39 +121,35 @@ export class P2PChatService implements IChatService {
     // They are received in the callback assigned in the constructor.
     // In a real application, instead of dispatching the event here,
     // you will implement sending messages to your chat server.
-    const messageEvent = new CustomEvent("chat-protocol", {
+
+    // const messageEvent = new CustomEvent("chat-protocol", {
+    //   detail: {
+    //     type: "message",
+    //     message,
+    //     conversationId,
+    //     sender: this,
+    //   },
+    // });
+
+    let myPeer = window.g_peer;
+    if (!(window.g_peer) || window.g_peer.destroyed) {
+      if (window.g_peer) window.g_peer.destroy();
+      window.g_peer = new MyPeer(window.g_userName);
+    }
+    let dc = window.g_peer.dataConnectionDict[conversationId];
+    if (!(dc && dc.peerConnection && dc.peerConnection.iceConnectionState == 'connected')) {
+      window.g_peer.dataConnectionDict[conversationId] = window.g_peer.connect(conversationId);
+      dc = window.g_peer.dataConnectionDict[conversationId];
+      window.g_peer.addHandlerForDc(dc);
+    }
+    dc.send({
       detail: {
         type: "message",
         message,
         conversationId,
         sender: this,
-      },
-    });
-
-
-    // @ts-ignore
-    // let myPeer = window.g_myPeer;
-    // // @ts-ignore
-    // if (!(window.g_myPeer) || window.g_myPeer.destroyed) {
-    //   // @ts-ignore
-    //   myPeer = window.g_myPeer = new MyPeer(window.g_userName);
-    // }
-    // console.log('is destroyed' + myPeer.destroyed);
-    //
-    // let dc = myPeer.dataConnectionDict[conversationId];
-
-    let tempPeer = new Peer({config: window.g_CONFIG});
-    console.log(window.g_CONFIG);
-
-    setTimeout(() => {
-      console.log('llllllll ')
-    }, 5000);
-    let dc = tempPeer.connect(conversationId);
-    setTimeout(() => {
-      console.log('llllllll ')
-    }, 5000);
-    dc.send(messageEvent);
-    // window.dispatchEvent(messageEvent);
+      }});
+    // // window.dispatchEvent(messageEvent);
     return message;
   }
 
@@ -167,34 +163,45 @@ export class P2PChatService implements IChatService {
     // It is received in the callback assigned in the constructor
     // In a real application, instead of dispatching the event here,
     // you will implement sending signalization to your chat server.
-    const typingEvent = new CustomEvent("chat-protocol", {
-      detail: {
-        type: "typing",
-        isTyping,
-        content,
-        conversationId,
-        userId,
-        sender: this,
-      },
-    });
 
-    // // @ts-ignore
-    // let myPeer = window.g_myPeer;
-    // // @ts-ignore
-    // if (!(window.g_myPeer) || window.g_myPeer.destroyed) {
-    //   // @ts-ignore
-    //   myPeer = window.g_myPeer = new MyPeer(window.g_userName);
+    // const typingEvent = new CustomEvent("chat-protocol", {
+    //   detail: {
+    //     type: "typing",
+    //     isTyping,
+    //     content,
+    //     conversationId,
+    //     userId,
+    //     sender: this,
+    //   },
+    // });
+
+    // let myPeer = window.g_peer;
+    // if (!(window.g_peer) || window.g_peer.destroyed) {
+    //   if (window.g_peer) window.g_peer.destroy();
+    //   window.g_peer = new MyPeer(window.g_userName);
     // }
-    // console.log('is destroyed' + myPeer.destroyed);
-    // let dc = myPeer.dataConnectionDict[conversationId];
+    // let dc = window.g_peer.dataConnectionDict[conversationId];
     // if (!(dc && dc.peerConnection && dc.peerConnection.iceConnectionState == 'connected')) {
-    //   myPeer.dataConnectionDict[conversationId] = myPeer.connect(conversationId);
-    //   dc = myPeer.dataConnectionDict[conversationId];
-    //   myPeer.addHandlerForDc(dc);
+    //   window.g_peer.dataConnectionDict[conversationId] = window.g_peer.connect(conversationId);
+    //   dc = window.g_peer.dataConnectionDict[conversationId];
+    //   window.g_peer.addHandlerForDc(dc);
     // }
-    // dc.send(typingEvent);
-    // window.dispatchEvent(typingEvent);
-    }
+
+
+    // dc.send({
+    //     detail: {
+    //       type: "typing",
+    //       isTyping,
+    //       content,
+    //       conversationId,
+    //       userId,
+    //       sender: this,
+    //     }
+    //   });
+      return isTyping;
+    };
+
+    
  on<T extends ChatEventType, H extends ChatEvent<T>>(
       evtType: T,
       evtHandler: ChatEventHandler<T, H>
