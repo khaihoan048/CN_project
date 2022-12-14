@@ -6,16 +6,16 @@ import Home from './pages/Home.js';
 import Register from './pages/Register.js';
 import Login from './pages/Login.js';
 
-import socket from "./socket";
-
+const socket = io.connect("http://103.295.236.149:3245")
 
 function App() {
   return (
     <BrowserRouter>
         <div>
           <Routes>
-            {/* <Route path='/register' element={<Register socket={socket}/>}></Route> */}
-            <Route path='/' element={<Home socket={socket}/>}></Route>
+            <Route path='/' element={<Login socket={socket}/>}></Route>
+            <Route path='/register' element={<Register socket={socket}/>}></Route>
+            <Route path='/Home' element={<Home socket={socket}/>}></Route>
             <Route path="/chat" element={<ChatPage socket={socket}/>}></Route>
           </Routes>
     </div>

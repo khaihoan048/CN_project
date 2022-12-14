@@ -25,17 +25,32 @@ export default function SignUp(socket) {
       username: data.get('username'),
       password: data.get('password'),
     });
-    
-    socket.emit('signup', {username: username, password: password});
-    socket.on('signuped', () => {
-      console.log('Sign up successfully');
-    });
-    socket.on('un-sign-up', () => {
-      console.log('User name has existed');
-      // socket.
-    });
+    console.log('connecting...');
+    sendToServer(username, password);
     return;
   };
+
+  const sendToServer = (username, password) =>{
+    if (username){
+      try{
+        // socket.auth({username, password});
+        // socket.connect();
+        socket.emit('signup', { username, password });
+      }catch (err){
+        console.log(err);
+      }
+      // socket.on('signuped', () => {
+      //   console.log('Sign up successfully');
+      // });
+      // socket.on('un-sign-up', () => {
+      //   console.log('User name has existed');
+      //   // socket.
+      // });
+    }
+    else{
+      console.log('Invalid username');
+    }
+  }
 
   return (
     <ThemeProvider theme={theme}>
