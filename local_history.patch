@@ -1,0 +1,169 @@
+Index: src/pages/Chat.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/pages/Chat.js b/src/pages/Chat.js
+--- a/src/pages/Chat.js	
++++ b/src/pages/Chat.js	(date 1671050036873)
+@@ -19,63 +19,57 @@
+ 
+ import Peer from "peerjs";
+ 
+-
+-
+-
+-
+-
+-export default function Chat() {
+-    const [renderSwitch, setRenderSwitch] = useState(true);
+-    const [messageInputValue, setMessageInputValue] = useState("");
+-    const [currentFriendName, setCurrentFriendName] = useState("hello2");
+-    const [dictMessage, setDictMessage] = useState(new Map());
+-    class MyPeer extends Peer {
+-        constructor() {
+-            super(window.g_userName, {config : window.g_iceconfig});
+-            this.isOpen = false;
+-            console.log('create peer');
+-            this.dataConnectionDict = {};
+-            this.on('open', function(id) {
+-                console.log('open ' + id);
+-                this.isOpen = true;
+-            });
++class MyPeer extends Peer {
++    constructor() {
++        super(window.g_userName, {config : window.g_iceconfig});
++        this.isOpen = false;
++        console.log('create peer');
++        this.dataConnectionDict = {};
++        this.on('open', function(id) {
++            console.log('open ' + id);
++            this.isOpen = true;
++        });
+ 
+-            this.on('disconnected', () => {
+-                while (this.disconnected) {
+-                    console.log('disconnect');
+-                    this.reconnect();
+-                    console.log('succesful reconnect to peerjs server:? ' + !this.disconnected);
+-                }
+-            });
++        this.on('disconnected', () => {
++            while (this.disconnected) {
++                console.log('disconnect');
++                this.reconnect();
++                console.log('succesful reconnect to peerjs server:? ' + !this.disconnected);
++            }
++        });
+ 
+-            this.on('connection', function(dataConnection) {
+-                this.dataConnectionDict[dataConnection.peer] = dataConnection;
+-                let dc = this.dataConnectionDict[dataConnection.peer];
+-                this.addHandlerForDc(dc);
+-                console.log('receive connection from remote peer');
+-            });
+-        }
++        this.on('connection', function(dataConnection) {
++            this.dataConnectionDict[dataConnection.peer] = dataConnection;
++            let dc = this.dataConnectionDict[dataConnection.peer];
++            this.addHandlerForDc(dc);
++            console.log('receive connection from remote peer');
++        });
++    }
+ 
+-        addHandlerForDc(dc) {
+-            function handleData(data) {
++    addHandlerForDc(dc) {
++        function handleData(data) {
+ 
+-                if (data.message) {
+-                    window.g_dictMessage[data.sender].push(data);
+-                    setRenderSwitch(!renderSwitch);
+-                }
+-                console.log('receive' + data);
+-            }
+-            dc.on('open', function() {
+-                dc.reliable = true; //
+-                dc.serialization = 'json';
+-                console.log('dc open and isready to use');
+-                dc.on('data', handleData);
+-            });
+-            dc.on('data', handleData);
+-        }
+-    }
++            if (data.message) {
++                window.g_dictMessage[data.sender].push(data);
++
++            }
++            console.log('receive' + data);
++        }
++        dc.on('open', function() {
++            dc.reliable = true; //
++            dc.serialization = 'json';
++            console.log('dc open and isready to use');
++            dc.on('data', handleData);
++        });
++        dc.on('data', handleData);
++    }
++}
+ 
+ 
++
++
++export default function Chat() {
++
+     if (!window.g_peer || window.g_peer.destroyed) {
+         if (window.g_peer) {
+             window.g_peer.destroy();
+@@ -84,7 +78,10 @@
+     }
+ 
+ 
+-
++    const [messageInputValue, setMessageInputValue] = useState("");
++    const [currentFriendName, setCurrentFriendName] = useState("hello2");
++    const [dictMessage, setDictMessage] = useState(new Map());
++    const [renderSwitch, setRenderSwitch] = useState(true);
+     // useEffect()
+ 
+     let userList = require('../data/user.json');
+@@ -127,7 +124,7 @@
+                                             console.log(user.name);
+                                         }}
+                                     >
+-                                        <Avatar key={user.name} src={avatarIco} name={user.name} status={user.status}/>
++                                        <Avatar  src={avatarIco} name={user.name} status={user.status}/>
+                                     </Conversation>
+                                 )
+                             })
+@@ -153,9 +150,9 @@
+                         <MessageSeparator content={Date()} />
+                         {
+                             require('.././data/mess/' + currentFriendName + '.json').map(function(mess) {
+-                                window.g_dictMessage[currentFriendName] = window.g_dictMessage[currentFriendName]
+-                                    ? window.g_dictMessage[currentFriendName].push(mess)
+-                                    : [];
++                                // window.g_dictMessage[currentFriendName] = window.g_dictMessage[currentFriendName]
++                                //     ? window.g_dictMessage[currentFriendName].push(mess)
++                                //     : [];
+ 
+                                 return (
+ 
+@@ -167,7 +164,7 @@
+                                                  direction: mess.sender === window.g_userName ? "outgoing" : "incoming",
+                                                  position: "normal",
+                                              }}>
+-                                        <Avatar key={mess.sendTime} src={avatarIco} name={mess.sender}/>
++                                        <Avatar  src={avatarIco} name={mess.sender}/>
+                                     </Message>
+                                 )})
+                         }
+@@ -191,7 +188,7 @@
+                             let messObj = {message: value, sentTime: Date(), sender: window.g_userName};
+                             dc.send(messObj);
+                             window.g_dictMessage[conversationId].push(messObj);
+-                            setRenderSwitch(!renderSwitch);
++                            // setRenderSwitch(!renderSwitch);
+                             setMessageInputValue('');
+                         }}
+                     />

@@ -1,25 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+// import React from 'react';
+// import { Route, Routes } from 'react-router-dom';
+// import Chat from './pages/Chat';
+// import Login from './pages/Login';
+// import SignUp from './pages/Signup';
+//
+// function App() {
+//   return (
+//       // <>
+//       //   <Routes>
+//       //     <Route exact path="/" element={<Login />}/>
+//       //     <Route exact path="/chat" element={<Chat />}/>
+//       //     <Route exact path="/signup" element={<SignUp />}/>
+//       //   </Routes>
+//       // </>
+//
+//       <Chat></Chat>
+//   );
+// }
+// export default App;
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+
+import './App.css';
+import Chat from './pages/Chat.js';
+import Login from './pages/Login.js';
+// import Register from './pages/Register.js';
+import * as React from 'react';
+
+export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {pageType: 'login', userName : ''};
+  }
+  setChatPage() {
+    this.setState({pageType: 'chat'});
+  }
+
+  setUserInfo(infoObject) {
+    this.setState({userName: infoObject.userName});
+  }
+  render() {
+    if (this.state.pageType === 'login') {
+      return <Login parentApp={this}/>;
+    }
+    // else if (this.state.pageType === 'register'){
+    //   return <Register parentApp={this}/>;
+    // }
+    else if (this.state.pageType === 'chat'){
+      return <Chat/>;
+    }
+    else return null;
+  };
 }
 
-export default App;
