@@ -36,6 +36,7 @@ class ChatHttpServer {
     }
 
     login(userCredential) {
+        console.log('login');
         return new Promise(async (resolve, reject) => {
             try {
                 const response = await axios.post('http://localhost:4000/login', userCredential);

@@ -114,6 +114,20 @@ class Socket{
 				}
 			});
 
+			socket.on('search', async (data) => {
+				try{
+					const res = await queryHandler.getUserByUsername(data);
+					console.log(res);
+					this.io.to(socket.id).emit('search-response', res.username);
+				}
+				catch (err){
+					console.log(error);
+					this.io.to(socket.id).emit('search-response', {
+						error: true,
+						message: CONSTANTS.USER_NOT_FOUND
+					});
+				}
+			});
 
 			/**
 			* sending the disconnected user to all socket users. 
@@ -132,7 +146,9 @@ class Socket{
 	}
 	
 	socketConfig(){
+		console.log('socketConfig');
 		this.io.use( async (socket, next) => {
+			console.log(socket.request._query);
 			try {
 				await queryHandler.addSocketId({
 					userId: socket.request._query['userId'],

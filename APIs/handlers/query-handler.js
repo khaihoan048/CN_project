@@ -116,7 +116,7 @@ class QueryHandler{
 					$project : queryProjection
 				}
 				]).toArray( (err, result) => {
-					DB.close();
+					// DB.close();
 					if( err ){
 						reject(err);
 					}
@@ -142,7 +142,7 @@ class QueryHandler{
 			try {
 				const [DB, ObjectID] = await this.Mongodb.onConnect();
 				DB.collection('user').update( { _id : ObjectID(data.id)}, data.value ,(err, result) => {
-					DB.close();
+					// DB.close();
 					if( err ){
 						reject(err);
 					}
@@ -171,10 +171,11 @@ class QueryHandler{
 					}
 				}
 				]).toArray( (err, result) => {
-					DB.close();
+					// DB.close();
 					if( err ){
 						reject(err);
 					}
+					console.log(result);
 					resolve(result);
 				});
 			} catch (error) {

@@ -1,20 +1,20 @@
-import * as io from 'socket.io-client';
+// import * as io from 'socket.io-client';
+const io = require('socket.io-client');
 const events = require('events');
 
 
 class ChatSocketServer {
     
-    socket = null
     eventEmitter = new events.EventEmitter();
 
     // Connecting to Socket Server
     establishSocketConnection(userId) {
-        console.log('establishing socket from client');
+        console.log(`userId: ${userId}`);
         try {
-            this.socket = io(`http://localhost:4000`, {
-                query: `userId=${userId}`
-            });
+            this.socket = io.connect("http://localhost:4000", {query: `userId=${userId}`});
+            console.log('connect to socket server')
         } catch (error) {
+            console.log(error);
             alert(`Something went wrong; Can't connect to socket server`);
         }
     }
@@ -43,6 +43,13 @@ class ChatSocketServer {
         this.socket.on('logout-response', (data) => {
             this.eventEmitter.emit('logout-response', data);
         });
+    }
+
+    search(username){
+        this.socket.emit('search', username);
+        this.socket.on('search-response', (data) => {
+            this.eventEmitter.emit('search-response', data);
+        })
     }
 
 }
