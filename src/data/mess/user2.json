@@ -2,6 +2,15 @@
   {
   "message": "hello",
   "sentTime": "11/2/2022",
-  "sender": "user2"
+  "sender": "user2",
+  "type": "message"
+  },
+  {
+    "message": "hello",
+    "sentTime": "11/2/2022",
+    "sender": "user2",
+    "type": "file",
+    "fileSize": "1123",
+    "fileName": "a.txt"
   }
 ]

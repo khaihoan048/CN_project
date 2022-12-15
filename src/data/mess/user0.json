@@ -2,6 +2,7 @@
   {
     "message": "hello",
     "sentTime": "11/2/2022",
-    "sender": "user0"
+    "sender": "user0", 
+    "type": "message"
   }
 ]
