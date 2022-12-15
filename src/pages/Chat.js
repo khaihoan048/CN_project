@@ -18,13 +18,29 @@ import {
   ExpansionPanel,
   TypingIndicator,
   MessageSeparator,
-  EllipsisButton
+  EllipsisButton,
+  AttachmentButton 
 } from "@chatscope/chat-ui-kit-react";
 
 // import MyPeer from "./MyPeer.js";
 import Peer from "peerjs";
+// import useForceUpdate from 'use-force-update';
+
+
+// import send from 'peer-file.send';
+// import receive from 'peer-file.receive'
+
+
+
+
 
 export default function Chat() {
+
+    
+
+
+
+    // const forceUpdate = useForceUpdate();
     let userList = require("../data/user.json");
     for (let user of userList) {
         window.g_dictMessage[user.userName] = require('../data/mess/' + user.name + '.json');
@@ -43,16 +59,18 @@ export default function Chat() {
             this.isOpen = false;
             console.log('create peer');
             this.dataConnectionDict = {};
+            // this.forceUpdateAppFunction = forceUpdate;
             this.on('open', function(id) {
                 console.log('open ' + id);
                 this.isOpen = true;
             });
-    
+            
             this.on('disconnected', () => {
                 while (this.disconnected) {
                     console.log('disconnect');
                     this.reconnect();
                     console.log('succesful reconnect to peerjs server:? ' + !this.disconnected);
+                
                 }
             });
     
@@ -61,7 +79,24 @@ export default function Chat() {
                 let dc = this.dataConnectionDict[dataConnection.peer];
                 this.addHandlerForDc(dc);
                 console.log('receive connection from remote peer');
-            });
+                let connection = dataConnection;
+                // receive(connection)
+                //     .on('incoming', function(file) {
+                //       this.accept(file) || this.reject(file)
+                //     })
+                //     .on('progress', function(file, bytesReceived) {
+                //       Math.ceil(bytesReceived / file.size * 100)
+                //     })
+                //     .on('complete', function(file) {
+                //       new Blob(file.data, { type: file.type })
+                //     })
+
+                // var file = input.files[0]
+                //   send(connection, file)
+                //     .on('progress', function(bytesSent) {
+                //       Math.ceil(bytesSent / file.size * 100)
+                //     })
+            })
         }
     
         addHandlerForDc(dc) {
@@ -70,7 +105,10 @@ export default function Chat() {
                     if (!window.g_dictMessage[data.sender]) window.g_dictMessage[data.sender]= [];
                     window.g_dictMessage[data.sender].push(data);
                 }
-                window.g_frame_message_list.setState({binaryFlag: !binaryFlag});              
+                // if(window.g_frame_message_list) window.g_frame_message_list.setState({binaryFlag: !binaryFlag});              
+                // useForceUpdate();
+                window.g_app.setState({flag: !window.g_app.state.flag});
+                // window.g_dictMessage[data.sender].pop();
                 console.log('receive' + data);
             }
             dc.on('open', function() {
@@ -78,43 +116,12 @@ export default function Chat() {
                 dc.serialization = 'json';
                 console.log('dc open and isready to use');
                 dc.on('data', handleData);
+                
             });
-            dc.on('data', handleData);
+            // dc.on('data', handleData);
         }
     }
     
-
-    class FrameMessageList extends Component {
-
-        constructor() {
-            super();
-            window.g_frame_message_list = this;
-            this.state = {binaryFlag: true};
-        }
-        render() {
-
-            return (
-                <MessageList >
-                    <MessageSeparator content={Date()} />
-                {
-                    window.g_dictMessage[currentContactUserName].map(function(mess) {
-                        return (
-                            <Message
-                                model={{
-                                    message: mess.message,
-                                    sentTime: mess.sentTime,
-                                    sender: mess.sender,
-                                    direction: window.g_userName === mess.sender ? "outgoing" : "incoming",
-                                    position: "normal"
-                                }}
-                            />
-                        )
-                    })                
-                }
-                </MessageList>
-            )
-            }
-        }
     
     if (!window.g_peer || window.g_peer.destroyed) {
         if (window.g_peer) {
@@ -122,17 +129,17 @@ export default function Chat() {
         }
         window.g_peer = new MyPeer();
     }
-    
-
-  
 
   return (
-    <div
+    
+    <div 
       style={{
         height: "600px",
         position: "relative"
       }}
     >
+      <choose_file></choose_file>
+      <span id="file-chosen"></span>
       <MainContainer responsive>
         <Sidebar position="left" scrollable={true}>
           <Search placeholder="Search..." />
@@ -171,8 +178,13 @@ export default function Chat() {
                     )
                 })
             }
-
           </ConversationList>
+          {window.buttonFile}
+          {   
+              window.actualBtn.addEventListener('change', function(){
+                  window.fileChosen.textContent = this.files[0].name;
+              })
+          }
         </Sidebar>
 
         <ChatContainer>
@@ -197,7 +209,6 @@ export default function Chat() {
           <MessageList >
             <MessageSeparator content={Date()} />
             {
-                
                 window.g_dictMessage[currentContactUserName].map(function(mess) {
                     return (
                         <Message
@@ -214,7 +225,9 @@ export default function Chat() {
             }
           </MessageList>
           <MessageInput
+            for="actual-btn"
             placeholder="Type message here"
+            attachButton={false}
             value={messageInputValue}
             onChange={(val) => setMessageInputValue(val)}
             onSend={function(message) {
@@ -233,7 +246,8 @@ export default function Chat() {
                 let messObj = {
                     "message": message,
                     "sentTime": Date(),
-                    "sender": window.g_userName
+                    "sender": window.g_userName,
+                    "type": "message"
                 }
                 dc.send(messObj);
                 if (!window.g_dictMessage[conversationId]) window.g_dictMessage[conversationId]= [];
@@ -242,8 +256,10 @@ export default function Chat() {
                 setMessageInputValue('');
             }}
           />
+        
         </ChatContainer>
       </MainContainer>
+        
     </div>
   );
 };
@@ -251,178 +267,3 @@ export default function Chat() {
 
 
 
-// export default function Chat() {
-
-//     if (!window.g_peer || window.g_peer.destroyed) {
-//         if (window.g_peer) {
-//             window.g_peer.destroy();
-//         }
-//         window.g_peer = new MyPeer();
-//     }
-
-
-//     const [messageInputValue, setMessageInputValue] = useState("");
-//     const [currentFriendName, setCurrentFriendName] = useState("hello2");
-//     // const [dictMessage, setDictMessage] = useState(new Map());
-//     // const [renderSwitch, setRenderSwitch] = useState(true);
-//     // useEffect()
-
-//     let userList = require('../data/user.json');
-//     const avatarIco =
-//         "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAZlBMVEUOHCyclYufmI0AECZvbGkAACCjm5AIGCoxOUIAEycAFSgLGisNHCwEFykDFyljY2N9enUlLjkACCKWkIc+Q0lmZmWIhH0bJjN/e3YVIjGSjYRAREpbXF0tND54dXGEgHpKTVFTVVcfARIMAAADVklEQVR4nO3ciXaiMABA0ZA4lhBEcV+r/v9PTtA6FUVGLXOyzLtf4DtktVghAAAAAAAAAAAAAAAAAAAAAABAuIwej9XAuP4Y/4xR5XY+6U11pI1GL4ZrmSQyGaXZIHf9cTqXa7Gt+ipSfqZ64PoTdcuoYjj56js3jtJxRM/RqMUwueo7Ny6nqohjPtr1Zbi+6Ts1JqNpFsGak2eLxr5z4zItAp+PRtfn313jaT66/pTvM2p1N//uGvv7YOdjNf/ant/VWJ3qABsv+/szzmtOWHtHrldP950a7XwM6QxglJk9Mz7rjcvpOJCxWs2/v60vzY37qc78b7R9s1fGZ60xWW58PwMYu7+/Oj5vGr0+A9yer99qrM4AheuSZnZ/n8kf9p0a7RnAyzVHly+vnw8bq/no3faYbd5dX5obe749xNy8s0G0NW6166a6bNttYJJMxq6b6lSv68L+L9dNdRRSSKF7FFJIoXsUUkihexRSSKF7FFJIoXsUUkihexRSSKF7FFJIoXsUUkihexRSSKF7FL5Oxl4oR8p1U13XhXJdevb6ZbeFUo5K396E7rJQyvlBfLguutVdoUyWB+PfO9BdFUopZztV+NfXUaHs749KebbCXHTwFrScfKbGs5e7r5iy/7M8uR7ulNe/0Bt//uTHQNXq6evwvMjz+buJMumlYw9Xz1sfi7cS7ePbikB+XJntXk+Uk9FmpT0fnt+K3frFxzeZpdrLze+RbPdKX39+XKmPkPqsLJ0825d82tUlmOH5LZs+k2gf37DMwlhd7mSbJx7f/mBXl8CG5x+5PvzlcCP3UxXi8Pymju17xjys1bOJaj2Ey6O/h+tnGT1s+38taaArzLU8m7Ukpt59P/GGvO0+HEWhMC13qTgKRV48TIykUBgxepAYS6Ew+b45MZpCu2k0XxfjKRRm1ZgYUaEoyqbEmArtjbjhv4FEVdh46Y+rsCkxskKhN7eX/tgKhTrEXmgTZeSFuap/rxFf4e33GjEW1i/9MRbWL/1RFopc9/pxF15/rxFpoR2ol0t/rIX2Rvx16Y+20F4Xz5f+eAvtUzxdFyMuFKaw10Xp2zuHnRqU8/5chf53mVaDxSHqRyiqgRp5IAAAAAAAAAAAAAAAAAAAAAAA/4Hf0gU2cK/EibwAAAAASUVORK5CYII=";
-
-
-
-//             return <div style={{
-//             height: "600px",
-//             position: "relative"
-//         }}>
-//             <MainContainer responsive>
-//             <Sidebar position="left" scrollable={false}>
-//             <Search placeholder="Search..." />
-//             <ConversationList>
-//             <Conversation name="Lilly" lastSenderName="Lilly" info="Yes i can do it for you">
-//             <Avatar src={avatarIco} name="Lilly" status="available" />
-//             </Conversation>
-
-//             <Conversation name="Joe" lastSenderName="Joe" info="Yes i can do it for you">
-//             <Avatar src={avatarIco} name="Joe" status="dnd" />
-//             </Conversation>
-
-//             <Conversation name="Emily" lastSenderName="Emily" info="Yes i can do it for you" unreadCnt={3}>
-//             <Avatar src={avatarIco} name="Emily" status="available" />
-//             </Conversation>
-
-//             <Conversation name="Kai" lastSenderName="Kai" info="Yes i can do it for you" unreadDot>
-//             <Avatar src={avatarIco} name="Kai" status="unavailable" />
-//             </Conversation>
-
-//             <Conversation name="Akane" lastSenderName="Akane" info="Yes i can do it for you">
-//             <Avatar src={avatarIco} name="Akane" status="eager" />
-//             </Conversation>
-
-//             <Conversation name="Eliot" lastSenderName="Eliot" info="Yes i can do it for you">
-//             <Avatar src={avatarIco} name="Eliot" status="away" />
-//             </Conversation>
-
-//             <Conversation name="Zoe" lastSenderName="Zoe" info="Yes i can do it for you">
-//             <Avatar src={avatarIco} name="Zoe" status="dnd" />
-//             </Conversation>
-
-//             <Conversation name="Patrik" lastSenderName="Patrik" info="Yes i can do it for you">
-//             <Avatar src={avatarIco} name="Patrik" status="invisible" />
-//             </Conversation>
-//             </ConversationList>
-//             </Sidebar>
-
-//             <ChatContainer>
-//             <ConversationHeader>
-//             <ConversationHeader.Back />
-//             <Avatar src={avatarIco} name="Zoe" />
-//             <ConversationHeader.Content userName="Zoe" info="Active 10 mins ago" />
-//             <ConversationHeader.Actions>
-//             <VoiceCallButton />
-//             <VideoCallButton />
-//             <EllipsisButton orientation="vertical" />
-//             </ConversationHeader.Actions>
-//             </ConversationHeader>
-//             <MessageList typingIndicator={<TypingIndicator content="Zoe is typing" />}>
-//             <MessageSeparator content="Saturday, 30 November 2019" />
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Zoe",
-//             direction: "incoming",
-//             position: "single"
-//         }}>
-//             <Avatar src={avatarIco} name="Zoe" />
-//             </Message>
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Patrik",
-//             direction: "outgoing",
-//             position: "single"
-//         }} avatarSpacer />
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Zoe",
-//             direction: "incoming",
-//             position: "first"
-//         }} avatarSpacer />
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Zoe",
-//             direction: "incoming",
-//             position: "normal"
-//         }} avatarSpacer />
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Zoe",
-//             direction: "incoming",
-//             position: "normal"
-//         }} avatarSpacer />
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Zoe",
-//             direction: "incoming",
-//             position: "last"
-//         }}>
-//             <Avatar src={avatarIco} name="Zoe" />
-//             </Message>
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Patrik",
-//             direction: "outgoing",
-//             position: "first"
-//         }} />
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Patrik",
-//             direction: "outgoing",
-//             position: "normal"
-//         }} />
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Patrik",
-//             direction: "outgoing",
-//             position: "normal"
-//         }} />
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Patrik",
-//             direction: "outgoing",
-//             position: "last"
-//         }} />
-
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Zoe",
-//             direction: "incoming",
-//             position: "first"
-//         }} avatarSpacer />
-//             <Message model={{
-//             message: "Hello my friend",
-//             sentTime: "15 mins ago",
-//             sender: "Zoe",
-//             direction: "incoming",
-//             position: "last"
-//         }}>
-//             <Avatar src={avatarIco} name="Zoe" />
-//             </Message>
-//             </MessageList>
-//             <MessageInput placeholder="Type message here" value={messageInputValue} onChange={val => setMessageInputValue(val)} />
-//             </ChatContainer>
-//             </MainContainer>
-//             </div>;
-//         }
-// import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";

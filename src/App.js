@@ -30,7 +30,11 @@ import * as React from 'react';
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {pageType: 'login', userName : ''};
+    window.g_app = this;
+    this.state = {pageType: 'login', userName : '', flag: true};
+
+
+
   }
   setChatPage() {
     this.setState({pageType: 'chat'});

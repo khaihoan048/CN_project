@@ -16,3 +16,19 @@ code {
   font-family: sans-serif;
   text-align: center;
 }
+
+
+#label {
+  background-color: rgb(18, 127, 167);
+  color: white;
+  padding: 0.5rem;
+  font-family: sans-serif;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+#file-chosen{
+  margin-left: 0.3rem;
+  font-family: sans-serif;
+}

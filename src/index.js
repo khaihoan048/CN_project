@@ -13,7 +13,7 @@ window.g_dictDC = null;
 window.g_userName = null;
 window.g_frame_message_list = null;
 window.g_dictMessage = new Map();
-
+window.g_app = null; 
 window.g_iceconfig = {'iceServers': [
         { url: 'stun:stun.l.google.com:19302' },
         {
@@ -41,6 +41,11 @@ window.g_iceconfig = {'iceServers': [
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+window.buttonFile = <label for="actual-btn" id="label">Choose File To Send</label>;
+
+window.actualBtn = document.getElementById('actual-btn');
+window.fileChosen = document.getElementById('file-chosen');
+
 
 root.render(
     <Router>
