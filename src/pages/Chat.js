@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Component } from "react";
 import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
   MainContainer,
@@ -69,8 +69,8 @@ export default function Chat() {
                 if (data.message) {
                     if (!window.g_dictMessage[data.sender]) window.g_dictMessage[data.sender]= [];
                     window.g_dictMessage[data.sender].push(data);
-                    setBinaryFlag(!binaryFlag);
                 }
+                window.g_frame_message_list.setState({binaryFlag: !binaryFlag});              
                 console.log('receive' + data);
             }
             dc.on('open', function() {
@@ -83,8 +83,39 @@ export default function Chat() {
         }
     }
     
+
+    class FrameMessageList extends Component {
+
+        constructor() {
+            super();
+            window.g_frame_message_list = this;
+            this.state = {binaryFlag: true};
+        }
+        render() {
+
+            return (
+                <MessageList >
+                    <MessageSeparator content={Date()} />
+                {
+                    window.g_dictMessage[currentContactUserName].map(function(mess) {
+                        return (
+                            <Message
+                                model={{
+                                    message: mess.message,
+                                    sentTime: mess.sentTime,
+                                    sender: mess.sender,
+                                    direction: window.g_userName === mess.sender ? "outgoing" : "incoming",
+                                    position: "normal"
+                                }}
+                            />
+                        )
+                    })                
+                }
+                </MessageList>
+            )
+            }
+        }
     
-  // Set initial message input value to empty string
     if (!window.g_peer || window.g_peer.destroyed) {
         if (window.g_peer) {
             window.g_peer.destroy();
@@ -181,7 +212,6 @@ export default function Chat() {
                     )
                 })                
             }
-            
           </MessageList>
           <MessageInput
             placeholder="Type message here"

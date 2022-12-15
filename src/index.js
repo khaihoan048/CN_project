@@ -11,7 +11,9 @@ window.g_app = null;
 window.g_peer = null;
 window.g_dictDC = null;
 window.g_userName = null;
+window.g_frame_message_list = null;
 window.g_dictMessage = new Map();
+
 window.g_iceconfig = {'iceServers': [
         { url: 'stun:stun.l.google.com:19302' },
         {
