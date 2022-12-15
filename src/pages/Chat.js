@@ -21,9 +21,69 @@ import {
   EllipsisButton
 } from "@chatscope/chat-ui-kit-react";
 
-import MyPeer from "./MyPeer.js";
+// import MyPeer from "./MyPeer.js";
+import Peer from "peerjs";
 
 export default function Chat() {
+    let userList = require("../data/user.json");
+    for (let user of userList) {
+        window.g_dictMessage[user.userName] = require('../data/mess/' + user.name + '.json');
+    }
+
+    const [messageInputValue, setMessageInputValue] = useState("");
+    const [currentContact, setCurrentContact] = useState(userList[1]);
+    const [currentContactUserName, setCurrentContactUserName] = useState(userList[1].name); 
+    const [binaryFlag, setBinaryFlag] = useState(true);
+
+
+
+    class MyPeer extends Peer {
+        constructor() {
+            super(window.g_userName, {config : window.g_iceconfig});
+            this.isOpen = false;
+            console.log('create peer');
+            this.dataConnectionDict = {};
+            this.on('open', function(id) {
+                console.log('open ' + id);
+                this.isOpen = true;
+            });
+    
+            this.on('disconnected', () => {
+                while (this.disconnected) {
+                    console.log('disconnect');
+                    this.reconnect();
+                    console.log('succesful reconnect to peerjs server:? ' + !this.disconnected);
+                }
+            });
+    
+            this.on('connection', function(dataConnection) {
+                this.dataConnectionDict[dataConnection.peer] = dataConnection;
+                let dc = this.dataConnectionDict[dataConnection.peer];
+                this.addHandlerForDc(dc);
+                console.log('receive connection from remote peer');
+            });
+        }
+    
+        addHandlerForDc(dc) {
+            function handleData(data) {
+                if (data.message) {
+                    if (!window.g_dictMessage[data.sender]) window.g_dictMessage[data.sender]= [];
+                    window.g_dictMessage[data.sender].push(data);
+                    setBinaryFlag(!binaryFlag);
+                }
+                console.log('receive' + data);
+            }
+            dc.on('open', function() {
+                dc.reliable = true; //
+                dc.serialization = 'json';
+                console.log('dc open and isready to use');
+                dc.on('data', handleData);
+            });
+            dc.on('data', handleData);
+        }
+    }
+    
+    
   // Set initial message input value to empty string
     if (!window.g_peer || window.g_peer.destroyed) {
         if (window.g_peer) {
@@ -31,11 +91,9 @@ export default function Chat() {
         }
         window.g_peer = new MyPeer();
     }
-  let userList = require("../data/user.json");
+    
 
-  const [messageInputValue, setMessageInputValue] = useState("");
-  const [currentContact, setCurrentContact] = useState(userList[1]);
-  const [currentContactUserName, setCurrentContactUserName] = useState(userList[1].name); 
+  
 
   return (
     <div
@@ -94,7 +152,7 @@ export default function Chat() {
                 "https://chatscope.io/storybook/react/static/media/lilly.62d4acff.svg"
               }
               name={currentContactUserName}
-            />s
+            />
             <ConversationHeader.Content
               userName={currentContact.name}
               info="Active 10 mins ago"
@@ -108,7 +166,8 @@ export default function Chat() {
           <MessageList >
             <MessageSeparator content={Date()} />
             {
-                require('../data/mess/' + currentContactUserName + '.json').map(function(mess) {
+                
+                window.g_dictMessage[currentContactUserName].map(function(mess) {
                     return (
                         <Message
                             model={{
@@ -120,7 +179,7 @@ export default function Chat() {
                             }}
                         />
                     )
-                })
+                })                
             }
             
           </MessageList>
@@ -147,6 +206,10 @@ export default function Chat() {
                     "sender": window.g_userName
                 }
                 dc.send(messObj);
+                if (!window.g_dictMessage[conversationId]) window.g_dictMessage[conversationId]= [];
+                let data = messObj;
+                window.g_dictMessage[conversationId].push(data);
+                setMessageInputValue('');
             }}
           />
         </ChatContainer>

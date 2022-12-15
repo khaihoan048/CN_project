@@ -11,6 +11,8 @@ export default class MyPeer extends Peer {
             this.isOpen = true;
         });
 
+
+        
         this.on('disconnected', () => {
             while (this.disconnected) {
                 console.log('disconnect');
