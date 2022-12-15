@@ -28,6 +28,7 @@ class Login extends Component {
         alert('Invalid login details')
       } else {
         httpServer.setLS('userid', response.userId);
+        console.log('Log in successfully');
         this.props.history.push(`/home`)
       }
     } catch (error) {

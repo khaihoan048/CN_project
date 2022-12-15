@@ -138,6 +138,8 @@ class Socket{
 					userId: socket.request._query['userId'],
 					socketId: socket.id
 				});
+
+				console.log('Socket config done');
 				next();
 			} catch (error) {
           		// Error

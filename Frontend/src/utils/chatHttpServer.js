@@ -73,6 +73,7 @@ class ChatHttpServer {
     }
 
     userSessionCheck(userId) {
+        console.log('userSessionCheck');
         return new Promise(async (resolve, reject) => {
             try {
                 const response = await axios.post('http://localhost:4000/userSessionCheck', {

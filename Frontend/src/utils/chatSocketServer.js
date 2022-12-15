@@ -9,6 +9,7 @@ class ChatSocketServer {
 
     // Connecting to Socket Server
     establishSocketConnection(userId) {
+        console.log('establishing socket from client');
         try {
             this.socket = io(`http://localhost:4000`, {
                 query: `userId=${userId}`

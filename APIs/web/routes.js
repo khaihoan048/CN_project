@@ -22,7 +22,7 @@ class Routes{
             res.send("Login page");
         })
 
-		//this.app.post('/userSessionCheck', routeHandler.userSessionCheckRouteHandler);
+		this.app.post('/userSessionCheck', routeHandler.userSessionCheckRouteHandler);
 
 		//this.app.post('/getMessages', routeHandler.getMessagesRouteHandler);
 

@@ -46,6 +46,8 @@ class RouteHandler{
 			username : (request.body.username).toLowerCase(),
 			password : request.body.password
 		};
+		console.log('HTTP POST LOGIN');
+		console.log(data);
 		if(data.username === '' || data.username === null) {
 			response.status(CONSTANTS.SERVER_ERROR_HTTP_CODE).json({
 				error : true,
@@ -65,8 +67,9 @@ class RouteHandler{
 						message : CONSTANTS.USER_LOGIN_FAILED
 					});
 				} else {
-                    console.log(data.password);
-					if( passwordHash.compareHash(data.password, result.password)) {
+					const isValid = passwordHash.compareHash(data.password, result.password);
+					console.log('isValid', isValid);
+					if(isValid === true) {
 						await queryHandler.makeUserOnline(result._id);
 						response.status(CONSTANTS.SERVER_OK_HTTP_CODE).json({
 							error : false,

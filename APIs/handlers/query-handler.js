@@ -5,14 +5,13 @@ class QueryHandler{
 	}
 
 	getUserByUsername(username){
+		console.log('getUserByUserName');
 		return new Promise( async (resolve, reject) => {
 			try {
-				console.log('connecting...');
 				const [DB, ObjectID] = await this.Mongodb.onConnect();
-				console.log('querying....');
-				console.log(username)
 				const res = await DB.collection('user').find({ username: username }).toArray();
-				console.log(res[0]);
+				// console.log(res[0]);
+				// DB.close();
 				if (res !== undefined)
 					resolve(res[0]);
 				else
@@ -24,24 +23,30 @@ class QueryHandler{
 	}
 
 	makeUserOnline(userId){
+		console.log('Make user online');
+		// console.log(userId);
 		return new Promise( async (resolve, reject) => {
 			try {
 				const [DB, ObjectID] = await this.Mongodb.onConnect();
-				DB.collection('user').findAndModify({
-					_id : ObjectID(userId)
-				},[],{ "$set": {'online': 'Y'} },{new: true, upsert: true});
-
 				try{
-					const res = await DB.collection('user').findAndModify({
-						_id : ObjectID(userId)
-					},[],{ "$set": {'online': 'Y'} },{new: true, upsert: true});
-					DB.close();
-					console.log(res.value);
-					resolve(res.value);
-				}
-				catch (err){
+					await DB.collection('user').updateOne(
+						{ _id : Object(userId) },
+						{ "$set": {online: 'Y'} },
+						{ new: true, upsert: true},
+						(err, res) => {
+							console.log('Query successfully');
+							if (err){
+								console.log('Query error');
+								reject(err);
+							}
+							// console.log(res);
+							resolve(res.value);
+						}
+					);
+				} catch (err){
 					reject(err);
 				}
+
 			} catch (error) {
 				reject(error)
 			}	
@@ -55,7 +60,7 @@ class QueryHandler{
 				try {
 					const res = await DB.collection('user').insertOne(data);
 					DB.close();
-					console.log(res);
+					// console.log(res);
 					resolve(res);
 				} catch (err){
 					resolve(err);
@@ -70,13 +75,16 @@ class QueryHandler{
 		return new Promise( async (resolve, reject) => {
 			try {
 				const [DB, ObjectID] = await this.Mongodb.onConnect();
-				DB.collection('user').findOne( { _id : ObjectID(data.userId) , online : 'Y'}, (err, result) => {
-					DB.close();
-					if( err ){
-						reject(err);
+				DB.collection('user').findOne( 
+					{ _id : ObjectID(data.userId) , online : 'Y'}, 
+					(err, result) => {
+						// DB.close();
+						if( err ){
+							reject(err);
+						}
+						resolve(result);
 					}
-					resolve(result);
-				});	
+				);	
 			} catch (error) {
 				reject(error)
 			}

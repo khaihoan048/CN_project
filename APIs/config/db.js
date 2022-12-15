@@ -9,12 +9,11 @@ class Db{
 
 	constructor(){
 		this.mongoClient = new MongoClient(process.env.DB_URL);
-		this.ObjectID = new ObjectId();
+		this.ObjectID = mongodb.ObjectId;
 	}
 
 	onConnect(){
 		const mongoURL = process.env.DB_URL;
-		console.log('connect')
 		return new Promise( async (resolve, reject) => {
 		
 			try {

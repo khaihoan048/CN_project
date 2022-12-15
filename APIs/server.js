@@ -5,19 +5,27 @@ const socketio = require('socket.io');
 const socketEvents = require('./web/socket'); 
 const routes = require('./web/routes'); 
 const appConfig = require('./config/app-config'); 
+const cors = require('cors');
+
+// const corsOption = {
+//     origin: 'http://localhost:3000',
+//     credentials:true, 
+//     optionSuccessStatus:200
+// }
 
 
 class Server{
 
     constructor(){
         this.app = express();
-        this.http = http.Server(this.app);
+        this.http = http.createServer(this.app);
         this.socket = socketio(this.http, {
             cors: {
-                origin: "http://localhost:3000",
-                methods: ["GET", "POST"]
-              }
+                origin: "http://localhost:3000/"
+            }
         });
+
+        // this.app.use(cors(corsOption));
     }
 
     appConfig(){        

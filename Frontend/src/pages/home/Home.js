@@ -10,6 +10,8 @@ import Conversation from './conversation/Conversation';
 
 import './Home.css';
 
+const httpServer = new ChatHttpServer();
+
 class Home extends Component {
   userId = null;
   state = {
@@ -20,7 +22,7 @@ class Home extends Component {
 
   logout = async () => {
     try {
-      await ChatHttpServer.removeLS();
+      await httpServer.removeLS();
       ChatSocketServer.logout({
         userId: this.userId
       });
@@ -43,15 +45,16 @@ class Home extends Component {
   async componentDidMount() {
     try {
       this.setRenderLoadingState(true);
-      this.userId = await ChatHttpServer.getUserId();
-      const response = await ChatHttpServer.userSessionCheck(this.userId);
+      this.userId = await httpServer.getUserId();
+      console.log( `userId: ${this.userId}`);
+      const response = await httpServer.userSessionCheck(this.userId);
       if (response.error) {
         this.props.history.push(`/`)
       } else {
         this.setState({
           username: response.username
         });
-        ChatHttpServer.setLS('username', response.username);
+        httpServer.setLS('username', response.username);
         ChatSocketServer.establishSocketConnection(this.userId);
       }
       this.setRenderLoadingState(false);
