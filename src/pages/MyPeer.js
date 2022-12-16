@@ -32,10 +32,11 @@ export class MyPeer extends Peer {
     addHandlerForDc(dc, typeSerialization = 'json') {
         function handleData(data) {
             if (!window.g_dictMessage[data.sender]) window.g_dictMessage[data.sender]= [];
-            window.g_dictMessage[data.sender].push(data);
             if (data.type == "file") {
                 window.hash_name_file_table[data.hashKey] = data.message;
+                data.message = null;
             }
+            window.g_dictMessage[data.sender].push(data);
             window.g_app.setState({flag: !window.g_app.state.flag});
             console.log('receive' + data);
         }

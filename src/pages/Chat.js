@@ -67,8 +67,8 @@ export default function Chat() {
     //     save.click();
     // }
 
-    window.g_sendFile = function(fileObj) {
-        const blob = new Blob([fileObj]);
+    window.g_sendFile = function() {
+        let fileObj = window.g_cur_file;
         let dc = window.g_peer.dataConnectionDict[currentContactUserName];
         if (!(dc && dc.peerConnection.iceConnectionState === "connected")) {
             dc = window.g_peer.connect(currentContactUserName);
@@ -76,7 +76,7 @@ export default function Chat() {
         }
         window.g_peer.addHandlerForDc(dc, 'binary');
         let messFileObj = {
-            "message": blob,
+            "message": window.g_cur_file,
             "sentTime": Date(),
             "sender": window.g_userName,
             "type": "file",
@@ -85,6 +85,10 @@ export default function Chat() {
             "hashKey": fileObj.name + fileObj.lastModified + fileObj.size
         };
         dc.send(messFileObj);
+        window.hash_name_file_table[messFileObj.hashKey] = window.g_cur_file;
+        if (!window.g_dictMessage[currentContactUserName]) {
+            window.g_dictMessage[currentContactUserName] = [];
+        }
         window.g_dictMessage[currentContactUserName].push(messFileObj);
         window.g_app.setState({flag: !window.g_app.state.flag});
     }
@@ -159,7 +163,7 @@ export default function Chat() {
                             // window.g_fileChosen.textContent = this.files[0].name;
                             // window.g_transfer_file_state = false;
                             window.g_cur_file = this.files[0];
-                            window.g_sendFile(window.g_cur_file);
+                            window.g_sendFile();
                         })
 
 
@@ -213,7 +217,7 @@ export default function Chat() {
                                     avatarPosition="tl"
                                   >
                                     <Message.CustomContent>
-                                      <div
+                                      {/* <div
                                         style={{
                                           display: "flex",
                                           alignItems: "center"
@@ -239,19 +243,22 @@ export default function Chat() {
                                         </div>
                                         <div>
                                           <span style={{ color: "#fff" }}>{mess.fileName}</span>
-                                        </div>
-                                        <div
+                                        </div> */}
+                                        {/* <div
                                             style={{
                                                 marginLeft: 8
                                             }}
-                                        >
+                                        > */}
                                             <ArrowButton direction="down"
                                                          border
                                                          onClick={function(){
-                                                            window.g_download(window.hash_name_file_table[mess.hashKey]);
+                                                            if(window.hash_name_file_table[mess.hashKey]) {
+                                                                let name = window.hash_name_file_table[mess.hashKey].fileName;
+                                                                window.g_download(window.hash_name_file_table[mess.hashKey], name);
+                                                            }
                                                          }}/>
-                                        </div>
-                                        </div>
+                                        {/* </div> */}
+                                        {/* </div> */}
                                     </Message.CustomContent>
                                 </Message>)))
                             })
